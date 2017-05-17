@@ -10,16 +10,14 @@ web:
     - 80:80
 
 app:
-  image: indiehosters/nextcloud
+  image: nextcloud:11-fpm
   links:
     - db
   volumes:
     - ./nextcloud/apps:/var/www/html/apps
     - ./nextcloud/config:/var/www/html/config
-    - ./nextcloud/data_cli:/var/www/html/data
+    - ./nextcloud/data_acd:/var/www/html/data
     - ./nextcloud/cache:/var/www/html/cache
-  environment:
-    - COMPOSE_HTTP_TIMEOUT=200
 
 db:
   image: mysql

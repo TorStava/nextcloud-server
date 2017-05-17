@@ -49,14 +49,15 @@ services:
 
 
   app:
-    image: indiehosters/nextcloud
+    image: nextcloud:11-fpm
     container_name: nextcloud_fpm
     links:
       - db
     volumes:
       - ./nextcloud/apps:/var/www/html/apps
       - ./nextcloud/config:/var/www/html/config
-      - ./nextcloud/data:/var/www/html/data
+      - ./nextcloud/data_acd:/var/www/html/data
+      - ./nextcloud/cache:/var/www/html/cache
     networks:
       - proxy-tier
     
