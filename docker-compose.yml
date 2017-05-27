@@ -48,16 +48,39 @@ services:
       - proxy-tier
 
 
+  rclone-mount:
+    image: mumiehub/rclone-mount
+    container_name: rclone-mount
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse
+    volumes:
+      - ./rclone.conf:/config/.rclone.conf
+      - ./nextcloud/data_remote:/var/www/html/data:shared
+    environment:
+      - RemotePath=${RCLONE_REMOTE}
+      - MountPoint=/var/www/html/data
+      - MountCommands=--max-read-ahead 1024k --transfers 20 --checkers 40 --uid ${MOUNT_UID} --gid ${MOUNT_GID} --allow-other --umask 0007
+
+
   app:
     image: nextcloud:11-fpm
     container_name: nextcloud_fpm
     links:
       - db
+      - rclone-mount
+#    devices:
+#      - /dev/fuse
+    volumes_from:
+      - rclone-mount
     volumes:
       - ./nextcloud/apps:/var/www/html/apps
       - ./nextcloud/config:/var/www/html/config
-      - ./nextcloud/data_acd:/var/www/html/data
-      - ./nextcloud/cache:/var/www/html/cache
+      - ./nextcloud/data_local/nextcloud.log:/var/www/html/nextcloud.log
+      - ./nextcloud/cache:/var/www/cache
     networks:
       - proxy-tier
     

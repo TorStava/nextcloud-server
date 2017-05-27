@@ -1,9 +1,5 @@
-# data created by nextcloud
-**/nextcloud/
-**/proxy/
-
-# private variables
+nextcloud
+proxy
+rclone.conf
 .env
 
-#generated config
-.config.php

@@ -5,9 +5,9 @@ NORMAL="\\033[0;39m"
 RED="\\033[1;31m"
 BLUE="\\033[1;34m"
 
-#acd_cli vars
-MOUNT_POINT="/var/srv/nextcloud/minimal/nextcloud/data_cli/"
-ACD_PATH="acd:/nextcloud_wwwdata"
+#rclone acd vars
+MOUNT_POINT="./nextcloud/data_remote/"
+ACD_PATH="nextcloud_crypt:/data"
 
 log() {
   echo "$BLUE > $1 $NORMAL"
@@ -32,6 +32,7 @@ help() {
 }
 
 start() {
+  fix-permissions
   docker-compose up -d
 }
 
@@ -42,7 +43,9 @@ stop() {
 mount() {
   mkdir -p $MOUNT_POINT
   # acd_cli -nl mount --modules="subdir,subdir=$ACD_PATH" --uid $(id -u www-data) --gid $(id -g www-data) -fg -ao --umask 0007 -st $MOUNT_POINT
-  rclone mount $ACD_PATH $MOUNT_POINT --log-level INFO --debug-fuse --uid $(id -u www-data) --gid $(id -g www-data) --allow-other --umask 0007
+  rclone mount $ACD_PATH $MOUNT_POINT \
+  --log-level DEBUG --debug-fuse --max-read-ahead 1024k --transfers 20 --checkers 40 \
+  --uid $(id -u www-data) --gid $(id -g www-data) --allow-other --umask 0007
 }
 
 unmount() {
@@ -50,6 +53,12 @@ unmount() {
   if [ $? -ne 0 ]; then
     fusermount -u -z $MOUNT_POINT
   fi
+}
+
+fix-permissions() {
+  chown -R www-data:www-data nextcloud/apps nextcloud/cache nextcloud/config nextcloud/data_local
+  chown -R 999:999 nextcloud/db
+  chmod -R 700 nextcloud/apps nextcloud/cache nextcloud/config nextcloud/db nextcloud/data_local
 }
 
 #execute literal arguments

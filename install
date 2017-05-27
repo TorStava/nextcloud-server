@@ -13,7 +13,7 @@ cat > ./nextcloud/config/config.php <<EOF
     0 => '${DOMAIN}',
   ),
   'datadirectory' => '/var/www/html/data',
-  'cache_path' => '/var/www/html/cache',
+  'cache_path' => '/var/www/cache',
   'overwrite.cli.url' => 'https://${DOMAIN}',
   'dbtype' => 'mysql',
   'dbname' => 'nextcloud',
@@ -24,6 +24,8 @@ cat > ./nextcloud/config/config.php <<EOF
   'theme' => '',
   'maintenance' => false,
   'memcache.local' => '\\OC\\Memcache\\APCu',
+  'logfile' => '/var/www/html/nextcloud.log',
+  'loglevel' => '0',
 );
 EOF
 
@@ -33,3 +35,8 @@ mkdir -p ./proxy/conf.d
 
 echo "client_max_body_size 16G;" > ./proxy/conf.d/uploadsize.conf
 
+#create data dirs
+mkdir -p ./nextcloud/data_remote
+mkdir -p ./nextcloud/data_local/files_external/
+touch ./nextcloud/data_local/files_external/rootcerts.crt
+touch ./nextcloud/data_local/nextcloud.log
